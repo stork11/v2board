@@ -177,13 +177,12 @@ class ClashMeta
         if (!empty($server['allow_insecure'])) $array['skip-cert-verify'] = ($server['allow_insecure'] ? true : false);
         return $array;
     }
-    
+
     public static function buildHysteria($password, $server)
     {
         $array = [];
         $array['name'] = $server['name'];
         $array['type'] = 'hysteria2';
-        $array['version'] = 2;
         $array['server'] = $server['host'];
         $array['port'] = $server['port'];
         $array['password'] = $password;
