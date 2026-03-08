@@ -41,6 +41,9 @@ class Loon
             if ($item['type'] === 'trojan') {
                 $uri .= self::buildTrojan($user['uuid'], $item);
             }
+            if ($item['type'] === 'hysteria') {
+                $uri .= self::buildHysteria($user['uuid'], $item);
+            }
         }
         return $uri;
     }
@@ -133,5 +136,28 @@ class Loon
         $uri = implode(',', $config);
         $uri .= "\r\n";
         return $uri;
+    }
+
+    public static function buildHysteria($password, $server)
+    {
+        $config = [
+            "{$server['name']}=Hysteria2",
+            "{$server['host']}",
+            "{$server['port']}",
+            "{$password}",
+            !empty($server['server_name']) ? "sni={$server['server_name']}" : "",
+            'udp=true'
+        ];
+        if (isset($server['insecure']) && (int)$server['insecure'] === 1) {
+            $config[] = 'skip-cert-verify=true';
+        }
+        if (!empty($server['up_mbps'])) {
+            $config[] = "upload-bandwidth={$server['up_mbps']}";
+        }
+        if (!empty($server['down_mbps'])) {
+            $config[] = "download-bandwidth={$server['down_mbps']}";
+        }
+        $config = array_filter($config);
+        return implode(',', $config) . "\r\n";
     }
 }

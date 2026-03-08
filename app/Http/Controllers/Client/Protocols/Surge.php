@@ -53,6 +53,12 @@ class Surge
                 // [Proxy Group]
                 $proxyGroup .= $item['name'] . ', ';
             }
+            if ($item['type'] === 'hysteria') {
+                // [Proxy]
+                $proxies .= self::buildHysteria($user['uuid'], $item);
+                // [Proxy Group]
+                $proxyGroup .= $item['name'] . ', ';
+            }
         }
 
         $defaultConfig = base_path() . '/resources/rules/default.surge.conf';
@@ -158,5 +164,32 @@ class Surge
         $uri = implode(',', $config);
         $uri .= "\r\n";
         return $uri;
+    }
+
+    public static function buildHysteria($password, $server)
+    {
+        $config = [
+            "{$server['name']}=hysteria2",
+            "{$server['host']}",
+            "{$server['port']}",
+            "password={$password}",
+            !empty($server['server_name']) ? "sni={$server['server_name']}" : "",
+            'udp-relay=true'
+        ];
+        if (isset($server['insecure'])) {
+            $config[] = ((int)$server['insecure'] === 1) ? 'skip-cert-verify=true' : 'skip-cert-verify=false';
+        }
+        if (!empty($server['up_mbps'])) {
+            $config[] = "upload-bandwidth={$server['up_mbps']}";
+        }
+        if (!empty($server['down_mbps'])) {
+            $config[] = "download-bandwidth={$server['down_mbps']}";
+        }
+        if (!empty($server['server_key'])) {
+            $config[] = 'obfs=salamander';
+            $config[] = "obfs-password={$server['server_key']}";
+        }
+        $config = array_filter($config);
+        return implode(',', $config) . "\r\n";
     }
 }
