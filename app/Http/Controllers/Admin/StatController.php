@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\CommissionLog;
+use App\Models\ServerHysteria;
 use App\Models\ServerShadowsocks;
 use App\Models\ServerTrojan;
 use App\Models\StatUser;
@@ -171,7 +172,8 @@ class StatController extends Controller
             'shadowsocks' => ServerShadowsocks::where('parent_id', null)->get()->toArray(),
             'v2ray' => ServerVmess::where('parent_id', null)->get()->toArray(),
             'trojan' => ServerTrojan::where('parent_id', null)->get()->toArray(),
-            'vmess' => ServerVmess::where('parent_id', null)->get()->toArray()
+            'vmess' => ServerVmess::where('parent_id', null)->get()->toArray(),
+            'hysteria' => ServerHysteria::where('parent_id', null)->get()->toArray()
         ];
         $startAt = strtotime('-1 day', strtotime(date('Y-m-d')));
         $endAt = strtotime(date('Y-m-d'));
@@ -190,7 +192,7 @@ class StatController extends Controller
             ->get()
             ->toArray();
         foreach ($statistics as $k => $v) {
-            foreach ($servers[$v['server_type']] as $server) {
+            foreach (($servers[$v['server_type']] ?? []) as $server) {
                 if ($server['id'] === $v['server_id']) {
                     $statistics[$k]['server_name'] = $server['name'];
                 }
