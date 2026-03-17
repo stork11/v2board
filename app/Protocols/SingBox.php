@@ -33,11 +33,27 @@ class SingBox
 
     protected function loadConfig()
     {
-        $defaultConfig = base_path('resources/rules/default.sing-box.json');
+        $defaultConfig = $this->isSingBoxKernelAtLeast('1.13.0')
+            ? base_path('resources/rules/default.sing-box.new.json')
+            : base_path('resources/rules/default.sing-box.json');
         $customConfig = base_path('resources/rules/custom.sing-box.json');
         $jsonData = file_exists($customConfig) ? file_get_contents($customConfig) : file_get_contents($defaultConfig);
 
         return json_decode($jsonData, true);
+    }
+
+    protected function isSingBoxKernelAtLeast(string $targetVersion): bool
+    {
+        $flag = strtolower(request()->input('flag') ?? request()->header('User-Agent', ''));
+        if (!$flag) {
+            return false;
+        }
+
+        if (!preg_match('/sing-box[^\\d]*v?(\\d+(?:\\.\\d+){0,2})/i', $flag, $matches)) {
+            return false;
+        }
+
+        return version_compare($matches[1], $targetVersion, '>=');
     }
 
     protected function buildOutbounds()
