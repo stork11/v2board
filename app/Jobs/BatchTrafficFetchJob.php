@@ -18,7 +18,7 @@ class BatchTrafficFetchJob implements ShouldQueue
     protected $protocol;
     protected $timestamp;
     public $tries = 1;
-    public $timeout = 20;
+    public $timeout = 50;
 
     /**
      * Create a new job instance.
