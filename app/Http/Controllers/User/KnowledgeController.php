@@ -66,8 +66,7 @@ class KnowledgeController extends Controller
         while (strpos($body, '<!--access start-->') !== false) {
             $accessData = getBetween($body, '<!--access start-->', '<!--access end-->');
             if ($accessData) {
-                $body = str_replace($accessData, '<div class="v2board-no-access">'. __('You must have a valid subscription to view content in this area') .'</div>', $body);
-            }
+                $body = str_replace($accessData, '<div class="v2board-no-access">'. __('You must have a valid subscription to view content in this area') .'<br /><br /><a class="btn btn-hero-primary" href="/#/plan" style="color:white"><i class="far fa fa-share"></i> 点击此处购买订阅</a>'.'</div>', $body);            }
         }
     }
 }

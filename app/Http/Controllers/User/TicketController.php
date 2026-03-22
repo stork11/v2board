@@ -190,9 +190,33 @@ class TicketController extends Controller
         ]);
     }
 
+    // private function sendNotify(Ticket $ticket, string $message)
+    // {
+    //     $telegramService = new TelegramService();
+    //     $telegramService->sendMessageWithAdmin("📮工单提醒 #{$ticket->id}\n———————————————\n主题：\n`{$ticket->subject}`\n内容：\n`{$message}`", true);
+    // }
+    
     private function sendNotify(Ticket $ticket, string $message)
     {
+        $user = User::find($ticket->user_id);
+        if(isset($user->plan_id)){
+            $plan = Plan::find($user->plan_id)->name;
+        } else {
+            $plan = "无";
+        }
+        
+        if(!isset($user->expired_at)) {
+            $expire = "长期";
+        } elseif ($user->expired_at === 0) {
+            $expire = "无";
+        } else {
+            $expire = date('Y-m-d', $user->expired_at);
+        }
+        
+        $useTraffic = round($user['u'] / (1024*1024*1024), 2) + round($user['d'] / (1024*1024*1024), 2);
+        $totalTraffic = round($user['transfer_enable'] / (1024*1024*1024), 2);
+        
         $telegramService = new TelegramService();
-        $telegramService->sendMessageWithAdmin("📮工单提醒 #{$ticket->id}\n———————————————\n主题：\n`{$ticket->subject}`\n内容：\n`{$message}`", true);
+        $telegramService->sendMessageWithAdmin("📮工单提醒 #{$ticket->id}\n———————————————\n用户信息:\n邮箱：`{$user->email}`\n套餐：`{$plan}`\n到期：`{$expire}`\n流量：`{$useTraffic}G/{$totalTraffic}G`\n———————————————\n主题：\n`{$ticket->subject}`\n内容：\n`{$message}`", true);
     }
 }

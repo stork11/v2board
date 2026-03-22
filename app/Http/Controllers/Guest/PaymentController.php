@@ -38,12 +38,21 @@ class PaymentController extends Controller
             return false;
         }
         $telegramService = new TelegramService();
-        $message = sprintf(
-            "💰成功收款%s元\n———————————————\n订单号：%s",
+        // $message = sprintf(
+        //     "💰成功收款%s元\n———————————————\n订单号：%s",
+        //     $order->total_amount / 100,
+        //     $order->trade_no
+        // );
+        // $telegramService->sendMessageWithAdmin($message);
+        
+        $message2 = sprintf(
+            "用户ID：%s 充值%s元",
+            $order->user_id,
             $order->total_amount / 100,
             $order->trade_no
         );
-        $telegramService->sendMessageWithAdmin($message);
+        // $telegramService->sendMessageWithAdmin($message2);
+        $telegramService->sendMessage("-1001866224966", $message2);
         return true;
     }
 }
