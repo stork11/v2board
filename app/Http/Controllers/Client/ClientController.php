@@ -16,6 +16,16 @@ class ClientController extends Controller
         $flag = $request->input('flag')
             ?? ($_SERVER['HTTP_USER_AGENT'] ?? '');
         $flag = strtolower($flag);
+        $decodedFlag = urldecode($flag);
+        $flags = [
+            'clash' => ['clash', 'cfw', 'clashforwindows'],
+            'meta' => ['meta', 'clashmeta', 'clash-meta', 'metacubex'],
+            'quantumult%20x' => ['quantumult x', 'quantumultx', 'quantumult%20x'],
+            'shadowrocket' => ['shadowrocket', 'shadowrocketios'],
+            'v2rayn' => ['v2rayn', 'v2ray n'],
+            'v2rayng' => ['v2rayng', 'v2ray ng'],
+            'ssrplus' => ['ssrplus', 'ssr-plus'],
+        ];
         $user = $request->user;
         // account not expired and is not banned.
         $userService = new UserService();
@@ -27,8 +37,22 @@ class ClientController extends Controller
                 foreach (array_reverse(glob(app_path('Http//Controllers//Client//Protocols') . '/*.php')) as $file) {
                     $file = 'App\\Http\\Controllers\\Client\\Protocols\\' . basename($file, '.php');
                     $class = new $file($user, $servers);
-                    if (strpos($flag, $class->flag) !== false) {
-                        die($class->handle());
+
+                    $matchFlags = [];
+                    if (isset($class->flags) && is_array($class->flags) && count($class->flags)) {
+                        $matchFlags = $class->flags;
+                    } elseif (isset($class->flag) && $class->flag) {
+                        $matchFlags = $flags[$class->flag] ?? [$class->flag];
+                    }
+
+                    foreach ($matchFlags as $matchFlag) {
+                        $matchFlag = strtolower($matchFlag);
+                        if (
+                            strpos($flag, $matchFlag) !== false
+                            || strpos($decodedFlag, $matchFlag) !== false
+                        ) {
+                            die($class->handle());
+                        }
                     }
                 }
             }
